@@ -2,7 +2,7 @@
 
 The Streaming Data Sync Protocol (SDSP) allows publishers of realtime data to efficiently synchronize an object with decoupled subscribers. The protocol is designed to be interoperable with any underlying platforms and transports. The protocol is particularly effective when there is a single publisher and one or more decoupled subscribers (pub/sub pattern).
 
-Unlike the many protocols that exist today enabling sync between publishers and subscribers, SDSP is designed to be agnostic in regards to the underlying streaming/realtime protocol, the data model and payload, the delta algorithm, the optional history retrieval feature and the platform. Additionally, the publisher can be decoupled from subscribers. For example, a protocol such as Metoer DDP may appear to have similar goals, yet it requires the publisher and subscriber to be coupled and communicate directly, it has limitations in terms of payload types that can be synchronized and is primarily designed for bi-directional synchronization.
+Unlike the many protocols that exist today enabling sync between publishers and subscribers, SDSP is designed to be agnostic in regards to the underlying streaming/realtime protocol, the data model and payload, the delta algorithm, the optional history retrieval feature and the platform. Additionally, the publisher can be decoupled from subscribers. For example, a protocol such as Meteor DDP may appear to have similar goals, yet it requires the publisher and subscriber to be coupled and communicate directly, it has limitations in terms of payload types that can be synchronized and is primarily designed for bi-directional synchronization.
 
 SDSP is therefore a good fit when:
 
@@ -40,16 +40,16 @@ SDSP is therefore a good fit when:
 ### Definitions:
 
 * "**Delta Algorithm**" is the algorithm used to generate a delta between two Objects.
-* "**Delta Frame**" is the data structure that is published over the Transport by a Publisher that includes one or more of: the data delta generated from the old and new object or the underlying applied change; the unique incrementing serial number; the Object UID; the delta algorithm used
+* "**Data Frame**" is the data structure that is published over the Transport by a Publisher that includes one or more of: the data delta generated from the old and new object or the underlying applied change; the unique incrementing serial number; the Object UID; the delta algorithm used
 * "**History Plug-in**" is a required plug-in, that using a pre-defined interface, allows the Library to retrieve Transport History in a uniform way. Some plug-ins may be bundled with the Library, however the Library must support 3rd party plug-ins
-* "**Library**" is the client library that is used to create Delta Frames ready for publishing on the Transport, and also consume Delta Frames received from the Transport. The Library additionally provides APIs to generate data deltas from old and new Objetcts and publish and retrieves Object from an Object Storage Location
+* "**Library**" is the client library that is used to create Data Frames ready for publishing on the Transport, and also consume Data Frames received from the Transport. The Library additionally provides APIs to generate data deltas from old and new Objetcts and publish and retrieves Object from an Object Storage Location
 * "**Object Storage Location**" is a URI, preferably accessible over the Internet (this may not always be possible), containing the location of
 * "**Object Storage Plug-in**" is an optional plug-in, that using a pre-defined interface, allows the Library to persist an Object and generate a URI and Object UID. Object Storage is most commonly used to avoid publishing large Objects on the Transport
 * "**Object UID**" is the unique identifier assigned to an Object when persisted to the Object Storage Location. This can be assigned prior to being stored by the Publisher, or can be issued Storage service when issuing an Object Storage Location. In fact, the Object Storage Location itself is a UID, although it can be verbose and thus a shorted UID may be preferred.
-* "**Object**" is an object, text or binary type that a Publisher wants to broadcast, along with any changes, to any number of subscribers. Subscribers consume Delta Frames construct an Object that is kept in sync with each subsequent Delta Frame
-* "**Publisher**" is the device that is publishing the Object and generating Delta Frames from the Library
+* "**Object**" is an object, text or binary type that a Publisher wants to broadcast, along with any changes, to any number of subscribers. Subscribers consume Data Frames construct an Object that is kept in sync with each subsequent Data Frame
+* "**Publisher**" is the device that is publishing the Object and generating Data Frames from the Library
 * "**Storage**" is any available storage system that is used to store arbitrary binary or text objects
-* "**Subscriber**" is the device that is consuming Delta Frames and using the Library to construct the Object and emit updates
+* "**Subscriber**" is the device that is consuming Data Frames and using the Library to construct the Object and emit updates
 * "**Transport**" is any underlying delivery mechanism for the updates. This could for example be a realtime transport (such as a [pub/sub channel](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern)), a stream (such as Kafka), a message queue (such as AMQP) or even just a static representation of the data perhaps exposed over HTTP with periodic polling
 * "**Transport History**" is a service that allows previously published Data Frames on the Transport to be retrieved upon request
 * "**TTL**" (commonly know as Time to live) is the mechanism that limits the amount of time History and Objects are available for an Object to retrieve. It is recommended that any additional authentication information is required to retrieve the Object from this URI and should instead be embedded in the URI. If separate authentication credentials are required, it will likely make it more difficult for Subscribers to retrieve the Object
@@ -177,13 +177,14 @@ Please note the following conventions in the API definition:
 
 #### Transport optimizations
 
-* To improve the portability of each Data Frame, it is recommended that a `historyUri` URI attribute is included in each Data Frame (this can be appended by the Publisher or potentially by a middleware responsible for publishing) that:
+* To improve the portability of each `DataFrame`, it is recommended that a `historyUri` URI attribute is included in each `DataFrame` (this can be appended by the Publisher or potentially by a middleware responsible for publishing) that:
   * Is a URL accessible over the Internet
   * Does not require authentication as the URL itself should be secure (i.e. a cryptographically secure embedded token or GUID)
   * As far as practical is a short URL to reduce the overhead in each frame of including a `historyUri` attribute
-  * Returns an array of all recent Data Frames until `ver` 0
+  * Returns an array of all recent `DataFrame` objects until `ver` 0
   * When possible, includes the initial published Object instead of a `dataUri` to minimize the number of requests needed for a Subscriber to construct the Object
-* The Data Frame data structure contains attribute names that could arguably be considered verbose given every frame, when using JSON encoding, includes the entire attribute name values. For example, an empty delta frame may contain the following JSON `{"uid":"UID","serial":1,"ver":1,"delta":"{}","alg":"jp"}`. 22 bytes out of 57 total bytes are used for the attribute names alone (although this is a contrived example). If the frame size is important, we recommend using a Transport that provides efficient encoding for pre-defined data structures such as [Google's ProtoBuf](https://developers.google.com/protocol-buffers/) or [Apache Avro](https://avro.apache.org/)
+* The `DataFrame` data structure contains attribute names that could arguably be considered verbose given every frame, when using JSON encoding, includes the entire attribute name values. For example, an empty delta frame may contain the following JSON `{"uid":"UID","serial":1,"ver":1,"delta":"{}","alg":"jp"}`. 22 bytes out of 57 total bytes are used for the attribute names alone (although this is a contrived example). If the frame size is important, we recommend using a Transport that provides efficient encoding for pre-defined data structures such as [Google's ProtoBuf](https://developers.google.com/protocol-buffers/) or [Apache Avro](https://avro.apache.org/)
+* The `data` attribute of the `DataFrame` supports any type of Object or language primitives such as a `String` or binary blob. We consider the encoding and decoding of these objects on the transport outside of the scope of this specification as it is assumed the transport itself will provide suitable encoding and decoding mechanisms. For example, if the `data` attribute is a binary object, and the transport uses JSON encoding, then it is expected the publishing client would encode the `DataFrame` using, for example, Base64 encoding, and the subscribing client could detect the encoding and decode the `DataFrame` before providing the `DataFrame` to the SDSP library.
 
 #### Transport History requirements
 

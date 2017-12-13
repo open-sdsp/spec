@@ -6,5 +6,10 @@ class SDSP {
 
 }
 
-console.log(DataFrame);
-new DataFrame({ uid: 1 });
+new DataFrame({
+  uid: 'foo',
+  serial: 2,
+  dataUri: 'http://foo.com',
+  data: { foo: 'bar' },
+  alg: 'foo',
+})

@@ -8,11 +8,11 @@ class Exception {
   }
 
   toString() {
-    return `<SDSP.Exception> Error code: ${code}, message: ${message}`;
+    return `<SDSP.Exception> Error code: ${this.code}, message: ${this.message}`;
   }
 }
 
-exports.ArgumentException = class extends Exception {
+module.exports.ArgumentException = class extends Exception {
   constructor(message) { super(message, 400); }
 }
 
