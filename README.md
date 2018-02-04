@@ -12,6 +12,7 @@ SDSP is therefore a good fit when:
 * You want the data sync updates to be portable without any coupling to the publisher. For example, a publisher could publish an update over HTTP, that data could be republished by a 3rd party into a queue, and then later be exposed to another 3rd party over Pub/Sub channels. The subscriber should be able to trivially reconstruct the entire data object without any access to the publisher or its systems
 * Optionally, if you are publishing large objects that are unsuitable for the underlying transport due to their size, you have another storage mechanism such as Amazon S3 or Google Cloud Storage
 
+For more background information on the motivation for this spec, please read the [vendor neutral open approach to decoupled data synchronization article](https://blog.ably.io/a-vendor-neutral-open-approach-to-decoupled-data-synchronization-26d8914cb28b).
 
 ## Table of contents
 
@@ -34,6 +35,20 @@ SDSP is therefore a good fit when:
 * **Decoupled** - the subscriber should never need to contact the publisher to reconstruct the original object and apply updates it receives
 * **Plug-in design** - the libraries developed to implement this protocol should aim to be portable and not couple themselves to any realtime, streaming or storage technology. Instead, a plug-in design should be used for the transport, storage, history etc.
 * **Open protocol** - this is a fledgling protocol at present, however contributions from the community and vendors are not only welcome, but necessary to make this protocol useful. We hope in time, a number of free and open source libraries will be made available using this protocol and the standard could be more [officially defined](https://en.wikipedia.org/wiki/Open_standard)
+
+## Visualised
+
+### Typical coupled data synchronization
+
+![Coupled data sync](https://cdn-images-1.medium.com/max/1600/1*-QeIUJ5_-KK5RUtNMw99tw.png)
+
+Source: [Vendor neutral open approach to decoupled data synchronization article](https://blog.ably.io/a-vendor-neutral-open-approach-to-decoupled-data-synchronization-26d8914cb28b)
+
+### Proposed decoupled data synchronization
+
+![Decoupled data sync](https://cdn-images-1.medium.com/max/1600/1*wsPd6ejZHvrc_SjwC4UHOw.png)
+
+Source: [Vendor neutral open approach to decoupled data synchronization article](https://blog.ably.io/a-vendor-neutral-open-approach-to-decoupled-data-synchronization-26d8914cb28b)
 
 ## SDSP Spec v0.1
 
