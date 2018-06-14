@@ -241,4 +241,4 @@ There are two ways to get involved:
 
 ## Related reading
 
-* [Swarm Replicated Object Notation (RON)](https://github.com/gritzko/swarm-ron) - an interesting data serialization format for distributed synchronization. The project is still in its infancy, but could be valuable in time as  an efficient Delta Algorithm
+* [Swarm Replicated Object Notation (RON)](https://github.com/gritzko/ron) - an interesting data serialization format for distributed synchronization. The project is still in its infancy, but could be valuable in time as  an efficient Delta Algorithm
